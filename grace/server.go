@@ -235,9 +235,14 @@ func (ln tcpKeepAliveListener) Accept() (c net.Conn, err error) {
 	return tc, nil
 }
 
+var handleSignalsNum int32
+
 // handleSignals listens for os Signals and calls any hooked in function that the
 // user had registered with the signal.
 func (srv *Server) handleSignals() {
+
+	handleSignalsNum++
+
 	var sig os.Signal
 
 	signal.Notify(
@@ -262,6 +267,11 @@ func (srv *Server) handleSignals() {
 		case syscall.SIGTERM:
 			log.Println(pid, "Received SIGTERM.")
 			srv.shutdown()
+			handleSignalsNum--
+			if handleSignalsNum == 0 {
+				os.Exit(0)
+			}
+			return
 		default:
 			log.Printf("Received %v: nothing i care about...\n", sig)
 		}
