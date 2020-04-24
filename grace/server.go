@@ -263,6 +263,10 @@ func (srv *Server) handleSignals() {
 			if err != nil {
 				log.Println("Fork err:", err)
 			}
+			go func() {
+				time.Sleep(15)
+				os.Exit(0)
+			}()
 		case syscall.SIGINT:
 			log.Println(pid, "Received SIGINT.")
 			srv.shutdown()
